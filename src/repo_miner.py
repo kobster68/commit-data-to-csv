@@ -36,7 +36,7 @@ def fetch_commits(repo_name: str, max_commits: int = None) -> pd.DataFrame:
             "sha": commit.sha,
             "author": commit.commit.author.name,
             "email": commit.commit.author.email,
-            "date": commit.commit.author.date,
+            "date": commit.commit.author.date.isoformat(),
             "message": commit.commit.message.splitlines()[0]
         }
         records.append(record)

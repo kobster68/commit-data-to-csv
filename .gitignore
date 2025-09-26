@@ -1,4 +1,3 @@
 venv/
-commits.csv
 src/__pycache__/
 tests/__pycache__/

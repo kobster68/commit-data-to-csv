@@ -109,4 +109,4 @@ def test_fetch_commits_empty(monkeypatch):
     commits = []
     gh_instance._repo = DummyRepo(commits, [])
     df = fetch_commits("any/repo")
-    assert df
+    assert df.empty == True

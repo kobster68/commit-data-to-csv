@@ -45,7 +45,12 @@ def fetch_commits(repo_name: str, max_commits: int = None) -> pd.DataFrame:
     df = pd.DataFrame(records)
     
     return df
-    
+
+def fetch_issues():
+    pass
+
+def merge_and_summarize():
+    pass
 
 def main():
     """

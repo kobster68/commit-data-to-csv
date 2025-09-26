@@ -1,4 +1,4 @@
-# tests/test_repo_miner.py
+# tests/test_repo.py
 
 import os
 import pandas as pd

@@ -4,6 +4,8 @@ import os
 import pandas as pd
 import pytest
 from datetime import datetime, timedelta
+
+import src.repo_miner as rm 
 from src.repo_miner import fetch_commits, fetch_issues, merge_and_summarize
 
 # --- Helpers for dummy GitHub API objects ---
@@ -67,7 +69,7 @@ def patch_env_and_github(monkeypatch):
     # Set fake token
     monkeypatch.setenv("GITHUB_TOKEN", "fake-token")
     # Patch Github class
-    # TODO
+    monkeypatch.setattr(rm, "Github", lambda token: gh_instance)
 
 # Helper global placeholder
 gh_instance = DummyGithub("fake-token")
@@ -96,18 +98,15 @@ def test_fetch_commits_limit(monkeypatch):
         DummyCommit("sha2", "Bob", "b@example.com", now - timedelta(days=1), "Bug fix")
     ]
     gh_instance._repo = DummyRepo(commits, [])
-    df = fetch_commits("any/repo")
+    df = fetch_commits("any/repo", 1)
     assert list(df.columns) == ["sha", "author", "email", "date", "message"]
-    assert len(df) == 2
+    assert len(df) == 1
     assert df.iloc[0]["message"] == "Initial commit"
     
 
 def test_fetch_commits_empty(monkeypatch):
     # Test that fetch_commits returns empty DataFrame when no commits exist.
-    now = datetime.now()
     commits = []
     gh_instance._repo = DummyRepo(commits, [])
     df = fetch_commits("any/repo")
-    assert list(df.columns) == ["sha", "author", "email", "date", "message"]
-    assert len(df) == 2
-    assert df.iloc[0]["message"] == "Initial commit"
+    assert df

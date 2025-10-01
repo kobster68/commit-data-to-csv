@@ -67,13 +67,26 @@ def fetch_issues(repo_name: str, state: str = "all", max_issues: int = None) -> 
         if max_issues and idx >= max_issues:
             break
         # Skip pull requests
-        # TODO
+        if issue.pull_request != None:
+            continue
 
         # Append records
-        # TODO
-
+        for issue in issues[:max_issues]:
+            record = {
+                "id": issue.id,
+                "number": issue.number,
+                "title": issue.title,
+                "user": issue.user,
+                "state": issue.state,
+                "created_at": issue.created_at,
+                "closed_at": issue.closed_at,
+                "comments": issue.comments,
+            }
+        records.append(record)
     # 5) Build DataFrame
-    # TODO: return statement
+    df = pd.DataFrame(records)
+    
+    return df
 
 def merge_and_summarize():
     #TODO

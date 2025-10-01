@@ -46,9 +46,34 @@ def fetch_commits(repo_name: str, max_commits: int = None) -> pd.DataFrame:
     
     return df
 
-def fetch_issues():
-    #TODO
-    pass
+def fetch_issues(repo_name: str, state: str = "all", max_issues: int = None) -> pd.DataFrame:
+    """
+    Fetch up to `max_issues` from the specified GitHub repository (issues only).
+    Returns a DataFrame with columns: id, number, title, user, state, created_at, closed_at, comments.
+    """
+    # 1) Read GitHub token
+    github_token = os.getenv("GITHUB_TOKEN")
+
+    # 2) Initialize client and get the repo
+    gh = Github(github_token)
+    repo = gh.get_repo("octocat/Hello-World")
+
+    # 3) Fetch issues, filtered by state ('all', 'open', 'closed')
+    issues = repo.get_issues(state=state)
+
+    # 4) Normalize each issue (skip PRs)
+    records = []
+    for idx, issue in enumerate(issues):
+        if max_issues and idx >= max_issues:
+            break
+        # Skip pull requests
+        # TODO
+
+        # Append records
+        # TODO
+
+    # 5) Build DataFrame
+    # TODO: return statement
 
 def merge_and_summarize():
     #TODO
@@ -70,6 +95,15 @@ def main():
     c1.add_argument("--max",  type=int, dest="max_commits",
                     help="Max number of commits to fetch")
     c1.add_argument("--out",  required=True, help="Path to output commits CSV")
+
+    # Sub-command: fetch-issues
+    c2 = subparsers.add_parser("fetch-issues", help="Fetch issues and save to CSV")
+    c2.add_argument("--repo",  required=True, help="Repository in owner/repo format")
+    c2.add_argument("--state", choices=["all","open","closed"], default="all",
+                    help="Filter issues by state")
+    c2.add_argument("--max",   type=int, dest="max_issues",
+                    help="Max number of issues to fetch")
+    c2.add_argument("--out",   required=True, help="Path to output issues CSV")
 
     args = parser.parse_args()
 

@@ -78,8 +78,8 @@ def fetch_issues(repo_name: str, state: str = "all", max_issues: int = None) -> 
                 "title": issue.title,
                 "user": issue.user,
                 "state": issue.state,
-                "created_at": issue.created_at,
-                "closed_at": issue.closed_at,
+                "created_at": issue.created_at.isoformat(),
+                "closed_at": issue.closed_at.isoformat(),
                 "comments": issue.comments,
             }
         records.append(record)

@@ -121,7 +121,36 @@ def test_fetch_issues_basic(monkeypatch):
     ]
     gh_instance._repo = DummyRepo([], issues)
     df = fetch_issues("any/repo", state="all")
-    assert {"id", "number", "title", "user", "state", "created_at", "closed_at", "comments"}.issubset(df.columns)
+    assert {"id", "number", "title", "user", "state", "created_at", "open_duration_days", "closed_at", "comments"}.issubset(df.columns)
     assert len(df) == 2
+
+def test_fetch_issues_pr(monkeypatch):
+    now = datetime.now()
+    issues = [
+        DummyIssue(1, 101, "Pull Request A", "alice", "open", now, None, 0, True),
+    ]
+    gh_instance._repo = DummyRepo([], issues)
+    df = fetch_issues("any/repo", state="all")
+    assert len(df) == 0
+
+def test_fetch_issues_date(monkeypatch):
+    now = datetime.now()
+    issues = [
+        DummyIssue(1, 101, "Issue A", "alice", "open", now, None, 0),
+        DummyIssue(2, 102, "Issue B", "bob", "closed", now - timedelta(days=2), now, 2)
+    ]
+    gh_instance._repo = DummyRepo([], issues)
+    df = fetch_issues("any/repo", state="all")
     # Check date normalization
-    # TODO
+    assert df.loc[0, "created_at"] == now.isoformat()
+
+def test_fetch_issues_duration(monkeypatch):
+    now = datetime.now()
+    issues = [
+        DummyIssue(1, 101, "Issue A", "alice", "open", now, None, 0),
+        DummyIssue(2, 102, "Issue B", "bob", "closed", now - timedelta(days=2), now, 2)
+    ]
+    gh_instance._repo = DummyRepo([], issues)
+    df = fetch_issues("any/repo", state="all")
+    # Check date normalization
+    assert df.loc[1, "open_duration_days"] == 2

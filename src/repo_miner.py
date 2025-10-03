@@ -63,26 +63,29 @@ def fetch_issues(repo_name: str, state: str = "all", max_issues: int = None) -> 
 
     # 4) Normalize each issue (skip PRs)
     records = []
+    valid = 0
     for idx, issue in enumerate(issues):
-        if max_issues and idx >= max_issues:
+        if max_issues and valid >= max_issues:
             break
-        # Skip pull requests
-        if issue.pull_request != None:
+
+        #Skip pull requests
+        if issue.pull_request is not None:
             continue
 
         # Append records
-        for issue in issues[:max_issues]:
-            record = {
-                "id": issue.id,
-                "number": issue.number,
-                "title": issue.title,
-                "user": issue.user,
-                "state": issue.state,
-                "created_at": issue.created_at.isoformat(),
-                "closed_at": issue.closed_at.isoformat(),
-                "comments": issue.comments,
-            }
+        record = {
+            "id": issue.id,
+            "number": issue.number,
+            "title": issue.title,
+            "user": issue.user,
+            "state": issue.state,
+            "created_at": issue.created_at.isoformat(),
+            "open_duration_days": (issue.closed_at - issue.created_at).days if issue.closed_at else None,
+            "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+            "comments": issue.comments,
+        }
         records.append(record)
+        valid += 1
     # 5) Build DataFrame
     df = pd.DataFrame(records)
     
@@ -125,6 +128,12 @@ def main():
         df = fetch_commits(args.repo, args.max_commits)
         df.to_csv(args.out, index=False)
         print(f"Saved {len(df)} commits to {args.out}")
+
+    # Dispatch based on selected command
+    if args.command == "fetch-issues":
+        df = fetch_issues(args.repo, args.state, args.max_issues)
+        df.to_csv(args.out, index=False)
+        print(f"Saved {len(df)} issues to {args.out}")
 
 if __name__ == "__main__":
     main()
